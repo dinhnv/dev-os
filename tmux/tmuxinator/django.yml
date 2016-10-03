@@ -1,0 +1,17 @@
+# ~/.tmuxinator/django.yml
+
+name: django
+root: ~/ws/<%= @args[0] %>
+windows:
+  - main:
+      layout: main-vertical
+      panes:
+        - editor:
+          - pyenv activate <%= @args[0] %>
+          - emacs --directory . &
+        - server:
+          - pyenv activate <%= @args[0] %>
+          - ./manage.py runserver_plus
+        - shell:
+          - pyenv activate <%= @args[0] %>
+          - ./manage.py shell_plus --ipython
