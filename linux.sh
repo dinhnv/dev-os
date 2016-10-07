@@ -187,11 +187,21 @@ nodejs() {
     npm install -g yo
 }
 
+golang() {
+    GO_VERSION=go1.7.1.linux-amd64
+    cd $TMP_DIR && wget https://storage.googleapis.com/golang/$GO_VERSION.tar.gz
+    sudo tar -C /usr/local -xzf $GO_VERSION.tar.gz
+    append_profile <<EOF
+export PATH=$PATH:/usr/local/go/bin
+EOF
+}
+
 dev_ev() {
     python_env
     oracle_jdk
     docker
     nodejs
+    golang
 }
 
 
