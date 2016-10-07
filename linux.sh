@@ -77,7 +77,8 @@ _tmux() {
     sudo apt-get install tmuxinator
     tmux_conf="$HOME/.tmux.conf"
     backup $tmux_conf && ln -s "$REPO_ROOT/tmux/tmux.conf" $tmux_conf
-    ln -s $REPO_ROOT/tmux/tmuxinator/ ~/.tmuxinator/
+    mkdir -p $HOME/.tmuxinator
+    ln -s $REPO_ROOT/tmux/tmuxinator/ $HOME/.tmuxinator/
 }
 
 _neovim() {
@@ -113,7 +114,6 @@ _spacemacs() {
 }
 
 install_term() {
-    _generate_sshkeys
     _tmux
     _neovim
     _zsh
@@ -134,7 +134,7 @@ generate_sshkeys() {
 # ----------------------------------------------------------------------
 python_env() {
     log "python environment"
-    apt_install libmysqlclient-dev
+    su_apt libmysqlclient-dev
 
     # python environment
     cd $APP_DIR && wget https://bootstrap.pypa.io/get-pip.py
@@ -163,7 +163,7 @@ oracle_jdk() {
     sudo add-apt-repository ppa:webupd8team/java
     sudo apt-get update
     sudo apt-get install oracle-java8-installer
-    apt_install oracle-java8-set-default
+    su_apt oracle-java8-set-default
     append_profile <<EOF
 export JAVA_HOME=/usr/lib/jvm/java-8-oracle/
 EOF
@@ -177,8 +177,8 @@ docker() {
 nodejs() {
     log "nodejs"
     curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
-    apt_install nodejs
-    sudo chown -R $(whoami) /usr/local/lib/node_modules/
+    su_apt nodejs
+    sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
     npm install -g coffee-script
     npm install -g grunt-cli
     npm install -g jshint
@@ -187,11 +187,21 @@ nodejs() {
     npm install -g yo
 }
 
-dev_ev() {
+golang() {
+    GO_VERSION=go1.7.1.linux-amd64
+    cd $TMP_DIR && wget https://storage.googleapis.com/golang/$GO_VERSION.tar.gz
+    sudo tar -C /usr/local -xzf $GO_VERSION.tar.gz
+    append_profile <<EOF
+export PATH=$PATH:/usr/local/go/bin
+EOF
+}
+
+dev_env() {
     python_env
     oracle_jdk
     docker
     nodejs
+    golang
 }
 
 
@@ -247,12 +257,18 @@ export PATH="$GRADLE_HOME/bin:$PATH"
 EOF
 }
 
+_vagrant() {
+    su_apt virtualbox virtualbox-dkms vagrant
+    # vagrant box add precise32 http://files.vagrantup.com/precise32.box
+}
+
 
 setup_tools() {
-    _markdown
-    apt_install sql-workbench
+    # _markdown
+    su_apt mysql-workbench
     _google_chrome
     _gradle
+    _vagrant
 }
 
 
@@ -266,7 +282,7 @@ __main__() {
     setup_fonts
     setup_tools
 
-    clean up
+    # clean up
     rm -rf $TMP_DIR
 }
 
