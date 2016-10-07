@@ -247,12 +247,18 @@ export PATH="$GRADLE_HOME/bin:$PATH"
 EOF
 }
 
+_vagrant() {
+    apt_install virtualbox virtualbox-dkms vagrant
+    # vagrant box add precise32 http://files.vagrantup.com/precise32.box
+}
+
 
 setup_tools() {
     _markdown
     apt_install sql-workbench
     _google_chrome
     _gradle
+    _vagrant
 }
 
 
