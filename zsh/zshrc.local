@@ -1,6 +1,11 @@
+ZSH_THEME="dracula"
+
 # alias
 alias fig="docker-compose"
-alias v="nvim"
+alias vim="nvim"
+alias rp="nvim ~/workspace/report.md"
+alias ..="cd ../"
 
 export ANDROID_HOME=$HOME/Android/Sdk
 export PATH=${PATH}:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+export EDITOR="nvim"
