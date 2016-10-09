@@ -138,8 +138,9 @@ python_env() {
 
     # python environment
     cd $APP_DIR && wget https://bootstrap.pypa.io/get-pip.py
-    sudo python2 get-pip.py
     sudo python3 get-pip.py
+    # install later to make pip2 is default
+    sudo python2 get-pip.py
 
     # pyenv
     curl -L https://raw.github.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
@@ -154,8 +155,8 @@ eval "$(pyenv virtualenvwrapper -)"
 
 EOF
 
-    # sudo pip2 install virtualenv
-    # sudo pip3 install virtualenv
+    sudo pip3 install virtualenv
+    sudo pip2 install virtualenv
 }
 
 oracle_jdk() {
