@@ -91,6 +91,9 @@ _neovim() {
     NVDIR="$HOME/.config/nvim/"
     mkdir -p $NVDIR && backup "$NVDIR/init.vim"\
         && ln -s $REPO_ROOT/vim/init.vim "${NVDIR}/init.vim"
+    # vim plug
+    curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 }
 
 _zsh() {
