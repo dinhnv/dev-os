@@ -100,8 +100,8 @@ _zsh() {
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
     ln -s $REPO_ROOT/zsh/zshrc.local $HOME/.zshrc.local
     append_profile <<EOF
-if [ -f ~/.zshrc.local ]; then
-    source ~/.zshrc.local
+if [ -f \$HOME/.zshrc.local ]; then
+    source \$HOME/.zshrc.local
 fi
 EOF
 }
@@ -144,14 +144,15 @@ python_env() {
 
     # pyenv
     curl -L https://raw.github.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
+    git clone https://github.com/yyuu/pyenv-virtualenvwrapper.git ~/.pyenv/plugins/pyenv-virtualenvwrapper
     append_profile <<EOF
 
 # pyenv
-export PATH="$HOME/.pyenv/bin:$PATH"
+export PATH="\$HOME/.pyenv/bin:\$PATH"
 export PYENV_VIRTUALENVWRAPPER_PREFER_PYVENV="true"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
-eval "$(pyenv virtualenvwrapper -)"
+eval "\$(pyenv init -)"
+eval "\$(pyenv virtualenv-init -)"
+eval "\$(pyenv virtualenvwrapper -)"
 
 EOF
 
@@ -180,12 +181,12 @@ nodejs() {
     curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
     su_apt nodejs
     sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
-    npm install -g coffee-script
-    npm install -g grunt-cli
-    npm install -g jshint
-    npm install -g less
+    sudo npm install -g coffee-script
+    sudo npm install -g grunt-cli
+    sudo npm install -g jshint
+    sudo npm install -g less
     # yoman
-    npm install -g yo
+    sudo npm install -g yo
 }
 
 golang() {
@@ -254,7 +255,7 @@ _gradle() {
     ln -s $APPS_DIR/$GRADLE_VERSION $APPS_DIR/gradle
     append_profile <<EOF
 export GRADLE_HOME="$APPS_DIR/gradle"
-export PATH="$GRADLE_HOME/bin:$PATH"
+export PATH="\$GRADLE_HOME/bin:\$PATH"
 EOF
 }
 
@@ -270,6 +271,10 @@ setup_tools() {
     _google_chrome
     _gradle
     _vagrant
+
+    # vietnamese
+    su_apt ibus-unikey
+    su_apt skype
 }
 
 
