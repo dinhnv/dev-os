@@ -119,7 +119,6 @@ _spacemacs() {
 install_term() {
     _tmux
     _neovim
-    _zsh
     _spacemacs
 }
 
@@ -293,6 +292,8 @@ __main__() {
 
     # clean up
     rm -rf $TMP_DIR
+    # TODO cann't logout of zsh shell after installing, fix later!
+    _zsh
 }
 
 __main__
