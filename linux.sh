@@ -74,7 +74,7 @@ _tmux() {
     sh autogen.sh
     ./configure && make
     sudo make install
-    sudo apt-get install tmuxinator
+    su_apt tmuxinator
     tmux_conf="$HOME/.tmux.conf"
     backup $tmux_conf && ln -s "$REPO_ROOT/tmux/tmux.conf" $tmux_conf
     mkdir -p $HOME/.tmuxinator
@@ -98,7 +98,7 @@ _neovim() {
 
 _zsh() {
     log "zsh & oh-my-zsh"
-    sudo apt-get install zsh
+    su_apt zsh
     chsh -s $(which zsh)
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
     ln -s $REPO_ROOT/zsh/zshrc.local $HOME/.zshrc.local
@@ -112,11 +112,13 @@ EOF
 _spacemacs() {
     sudo apt-add-repository -y ppa:adrozdoff/emacs
     sudo apt update
-    sudo apt install emacs25
+    su_apt emacs25
     git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
 }
 
 install_term() {
+    # TODO cann't logout of zsh shell after installing, fix later!
+    _zsh
     _tmux
     _neovim
     _spacemacs
@@ -182,7 +184,8 @@ nodejs() {
     log "nodejs"
     curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
     su_apt nodejs
-    sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
+    # TODO
+    # sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
     sudo npm install -g coffee-script
     sudo npm install -g grunt-cli
     sudo npm install -g jshint
@@ -196,7 +199,7 @@ golang() {
     cd $TMP_DIR && wget https://storage.googleapis.com/golang/$GO_VERSION.tar.gz
     sudo tar -C /usr/local -xzf $GO_VERSION.tar.gz
     append_profile <<EOF
-export PATH=$PATH:/usr/local/go/bin
+export PATH=\$PATH:/usr/local/go/bin
 EOF
 }
 
@@ -276,7 +279,7 @@ setup_tools() {
 
     # vietnamese
     su_apt ibus-unikey
-    su_apt skype
+    # su_apt skype
 }
 
 
@@ -292,8 +295,6 @@ __main__() {
 
     # clean up
     rm -rf $TMP_DIR
-    # TODO cann't logout of zsh shell after installing, fix later!
-    _zsh
 }
 
 __main__
