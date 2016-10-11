@@ -59,6 +59,7 @@ set encoding=utf-8
 set fileencoding=utf-8
 set fileencodings=utf-8
 
+set noswapfile
 " require for plugins
 set nocompatible        " Must be first line
 syntax on               " syntax highlight
@@ -77,6 +78,9 @@ endif
 let mapleader = ','
 let g:mapleader = ','
 
+" yank from the cursor to the end of the line, to be consistent with C and D.
+nnoremap Y y$
+
 " Visual shifting (does not exit Visual mode)
 vnoremap < <gv
 vnoremap > >gv
@@ -84,14 +88,30 @@ vnoremap > >gv
 " save as root w!!
 cmap w!! w !sudo tee % >/dev/null<CR>:e!<CR><CR>
 
+" [Movement]
+" Wrapped lines goes down/up to next row, rather than next line in file.
+noremap j gj
+noremap k gk
+"" Move visual block
+vnoremap J :m '>+1<CR>gv=gv
+vnoremap K :m '<-2<CR>gv=gv
+
 " [Tab]
 " set noexpandtab " insert tabs rather than spaces for <Tab>
 set smarttab " tab respects 'tabstop', 'shiftwidth', and 'softtabstop'
 " insert spaces rather tabs
 set shiftwidth=4 tabstop=4 softtabstop=4 expandtab autoindent
 set shiftround " round indent to a multiple of 'shiftwidth'
+" [Window, pane]
+" TIP C-w v C-w s;
+" OR :vsp -> verticle, :sp -> horizontal split
 set splitright                  " Puts new vsplit windows to the right of the current
 set splitbelow                  " Puts new split windows to the bottom of the current
+" Quicker window navigation
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-h> <C-w>h
+nnoremap <C-l> <C-w>l
 
 
 " [Linenumber]
@@ -131,7 +151,22 @@ set list
 " highlight conflicts
 match ErrorMsg '^\(<\|=\|>\)\{7\}\([^=].\+\)\?$'
 
-" [Theme]
+" status line
+set laststatus=2            " add bottom status bar
+set statusline=%F%m%r%h%w%=(%{&ff}/%Y)\ (line\ %l\/%L,\ col\ %c)\
+if exists("*fugitive#statusline")
+    set statusline+=%{fugitive#statusline()}
+endif
+
+" Undo
+set undolevels=100 "maximum number of changes that can be undone
+set history=1000                    " Store a ton of history (default is 20)
+
+" }}}
+
+
+" [Theme] {{{
+
 colorscheme dracula
 
 " }}}
