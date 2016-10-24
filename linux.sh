@@ -119,6 +119,13 @@ _spacemacs() {
     sudo apt update
     su_apt emacs25
     git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
+
+    # dependencies
+    # TODO check pip
+    # anaconda
+    sudo pip install jedi json-rpc service_factory
+    # python remove unused imports
+    sudo pip install autoflake
 }
 
 install_term() {
