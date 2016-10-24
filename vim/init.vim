@@ -162,6 +162,13 @@ endif
 set undolevels=100 "maximum number of changes that can be undone
 set history=1000                    " Store a ton of history (default is 20)
 
+" Wildignore
+set wildignore+=*.o,*.obj,*.exe,*.so,*.dll
+set wildignore+=.git/*,.bzr/*,.hg/*,.svn/*
+set wildignore+=.DS_Store,__MACOSX/*,Thumbs.db
+set wildignore+=.sass-cache/*,.cache/*,.tmp/*,*.scssc
+set wildignore+=node_modules/*,jspm_modules/*,bower_components/*,__pycache__/*
+
 " }}}
 
 

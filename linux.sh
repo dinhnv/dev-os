@@ -74,11 +74,16 @@ _tmux() {
     sh autogen.sh
     ./configure && make
     sudo make install
+
+    # for pre layout
     su_apt tmuxinator
     tmux_conf="$HOME/.tmux.conf"
     backup $tmux_conf && ln -s "$REPO_ROOT/tmux/tmux.conf" $tmux_conf
     mkdir -p $HOME/.tmuxinator
     ln -s $REPO_ROOT/tmux/tmuxinator/ $HOME/.tmuxinator/
+
+    # plugin manager
+    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 }
 
 _neovim() {
@@ -118,6 +123,8 @@ _spacemacs() {
 
 install_term() {
     # TODO cann't logout of zsh shell after installing, fix later!
+    # powerline for vim, zsh, tmux
+    sudo pip install powerline-status
     _zsh
     _tmux
     _neovim
