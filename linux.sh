@@ -112,6 +112,7 @@ if [ -f \$HOME/.zshrc.local ]; then
     source \$HOME/.zshrc.local
 fi
 EOF
+    wget -P $HOME/.oh-my-zsh/themes/ https://raw.githubusercontent.com/dracula/zsh/master/dracula.zsh-theme
 }
 
 _spacemacs() {
