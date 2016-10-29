@@ -198,7 +198,7 @@ let g:NERDShutUp=1
 
 
 " Python mode
-let g:pymode_virtualenv = 1
+let g:pymode_virtualenv = 0
 let g:pymode_trim_whitespaces = 0
 " Use Jedi (ready in YouCompleteMe) instead of Rop python mode
 " https://github.com/davidhalter/jedi-vim/issues/163
