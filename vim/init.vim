@@ -58,29 +58,37 @@ call plug#end()
 set encoding=utf-8
 set fileencoding=utf-8
 set noswapfile
-set nocompatible          " system wide vim, not specific for current directory
-syntax on                 " syntax highlight
-filetype plugin indent on " Indent and plugins by filetype
-set shiftround            " round indent to a multiple of 'shiftwidth'
-set splitright            " Puts new vsplit windows to the right of the current
-set splitbelow            " Puts new split windows to the bottom of the current
-set relativenumber        " default is relative mode
-set ruler                 " show current column
-set showcmd               " show command in bottom bar
-set cursorline            " highlight current line
-set wildmenu              " visual autocomplete for command menu
-set showmatch             " highlight matching [{()}]
-set incsearch             " Find as you type search
-set hlsearch              " Highlight search terms
-set ignorecase            " Case insensitive search
+set nocompatible               " system wide vim, not specific for current directory
+syntax on                      " syntax highlight
+filetype plugin indent on      " Indent and plugins by filetype
+set shiftround                 " round indent to a multiple of 'shiftwidth'
+set splitright                 " Puts new vsplit windows to the right of the current
+set splitbelow                 " Puts new split windows to the bottom of the current
+set relativenumber             " default is relative mode
+set ruler                      " show current column
+set showcmd                    " show command in bottom bar
+set cursorline                 " highlight current line
+set wildmenu                   " visual autocomplete for command menu
+set showmatch                  " highlight matching [{()}]
+set incsearch                  " Find as you type search
+set hlsearch                   " Highlight search terms
+set ignorecase                 " Case insensitive search
 set smartcase
-set smarttab              " tab respects 'tabstop', 'shiftwidth', and 'softtabstop'
-set shiftwidth=4 tabstop=4 softtabstop=4 expandtab autoindent " insert spaces rather tabs
+set smarttab                   " tab respects 'tabstop', 'shiftwidth', and 'softtabstop'
+set shiftwidth=4 tabstop=4 softtabstop=4
+set expandtab                  " insert spaces rather tabs
+set autoindent
 set wildmode=list:longest,full " <Tab> completion, list matches, then longest
 set colorcolumn=81             " highlight column 81th
 set undolevels=100             " maximum number of changes that can be undone
 set history=1000               " Store a ton of history (default is 20)
-" Wildignore
+set foldenable
+set foldnestmax=10             " deepest fold is 10 levels
+set scrolljump=5               " Lines to scroll when cursor leaves screen
+set scrolloff=3                " Minimum lines to keep above and below cursor
+                               " set nofoldenable            " don't fold by default
+set foldlevel=1
+set nowrap                     " do not wrap long lines
 set wildignore+=*.o,*.obj,*.exe,*.so,*.dll
 set wildignore+=.git/*,.bzr/*,.hg/*,.svn/*
 set wildignore+=.DS_Store,__MACOSX/*,Thumbs.db
@@ -93,9 +101,9 @@ if has('clipboard')
 endif
 set backspace=indent,eol,start      " make backspace behave in a sane manner
 set termguicolors                   " true color, terminal using
+set hidden                          " Allow buffer switching without saving
 let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1 " make cursor shape in insert mode
 let g:matchparen_insert_timeout=1   " fix lag
-set hidden                          " Allow buffer switching without saving
 " Highlight tab, problematic whitespace, eol:¬
 set listchars=tab:›\ ,trail:•,extends:#,nbsp:.
 set list
