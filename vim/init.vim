@@ -82,12 +82,13 @@ set wildmode=list:longest,full " <Tab> completion, list matches, then longest
 set colorcolumn=81             " highlight column 81th
 set undolevels=100             " maximum number of changes that can be undone
 set history=1000               " Store a ton of history (default is 20)
-set foldenable
+set nofoldenable
+set foldlevel=0
+set foldmethod=indent
 set foldnestmax=10             " deepest fold is 10 levels
 set scrolljump=5               " Lines to scroll when cursor leaves screen
 set scrolloff=3                " Minimum lines to keep above and below cursor
                                " set nofoldenable            " don't fold by default
-set foldlevel=1
 set nowrap                     " do not wrap long lines
 set wildignore+=*.o,*.obj,*.exe,*.so,*.dll
 set wildignore+=.git/*,.bzr/*,.hg/*,.svn/*
@@ -174,7 +175,7 @@ let g:pymode_trim_whitespaces = 0
 " https://github.com/davidhalter/jedi-vim/issues/163
 let g:pymode_options          = 0
 let g:pymode_rope             = 0
-let g:pymode_folding          = 0
+let g:pymode_folding          = 1
 let g:pymode_breakpoint       = 1
 let g:pymode_breakpoint_bind  = '<leader>b'
 
