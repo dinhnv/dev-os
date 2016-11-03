@@ -34,6 +34,7 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'scrooloose/nerdcommenter'
 Plug 'nathanaelkane/vim-indent-guides'
+Plug 'ervandew/supertab'
 " navigation
 Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] } | Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'ctrlpvim/ctrlp.vim'
@@ -58,6 +59,7 @@ call plug#end()
 set encoding=utf-8
 set fileencoding=utf-8
 set noswapfile
+set nobackup
 set nocompatible               " system wide vim, not specific for current directory
 syntax on                      " syntax highlight
 filetype plugin indent on      " Indent and plugins by filetype
@@ -82,20 +84,18 @@ set wildmode=list:longest,full " <Tab> completion, list matches, then longest
 set colorcolumn=81             " highlight column 81th
 set undolevels=100             " maximum number of changes that can be undone
 set history=1000               " Store a ton of history (default is 20)
-set nofoldenable
 set foldlevel=0
 set foldmethod=indent
 set foldnestmax=10             " deepest fold is 10 levels
+set nofoldenable            " don't fold by default
 set scrolljump=5               " Lines to scroll when cursor leaves screen
 set scrolloff=3                " Minimum lines to keep above and below cursor
-                               " set nofoldenable            " don't fold by default
 set nowrap                     " do not wrap long lines
 set wildignore+=*.o,*.obj,*.exe,*.so,*.dll
 set wildignore+=.git/*,.bzr/*,.hg/*,.svn/*
 set wildignore+=.DS_Store,__MACOSX/*,Thumbs.db
 set wildignore+=.sass-cache/*,.cache/*,.tmp/*,*.scssc
 set wildignore+=node_modules/*,jspm_modules/*,bower_components/*,__pycache__/*
-" highlight ColorColumn ctermbg=red ctermfg=red
 if has('clipboard')
     " When possible use + register for copy-paste
     set clipboard=unnamed,unnamedplus
@@ -238,5 +238,6 @@ let g:airline#extensions#tabline#enabled     = 1
 let g:airline#extensions#whitespace#enabled  = 1
 let g:airline#extensions#hunks#non_zero_only = 1
 let g:airline#extensions#virtualenv#enabled  = 1
+
 
 " vim: foldmethod=marker;foldlevel=0
