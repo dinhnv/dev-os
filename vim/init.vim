@@ -44,25 +44,23 @@ Plug 'powerline/fonts'
 Plug 'majutsushi/tagbar'
 Plug 'easymotion/vim-easymotion'
 Plug 'christoomey/vim-tmux-navigator'
-" git
+" Programming
 Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
-" python
+Plug 'benekastah/neomake'
 Plug 'klen/python-mode', { 'for': 'python' }
 Plug 'mitsuhiko/vim-python-combined', { 'for': 'python' }
 call plug#end()
 
 
 """"""""""""""""""""""""""""""""""""""""
-" settings
+" general
 """"""""""""""""""""""""""""""""""""""""
 set encoding=utf-8
 set fileencoding=utf-8
 set noswapfile
 set nobackup
 set nocompatible               " system wide vim, not specific for current directory
-syntax on                      " syntax highlight
-filetype plugin indent on      " Indent and plugins by filetype
 set shiftround                 " round indent to a multiple of 'shiftwidth'
 set splitright                 " Puts new vsplit windows to the right of the current
 set splitbelow                 " Puts new split windows to the bottom of the current
@@ -87,7 +85,7 @@ set history=1000               " Store a ton of history (default is 20)
 set foldlevel=0
 set foldmethod=indent
 set foldnestmax=10             " deepest fold is 10 levels
-set nofoldenable            " don't fold by default
+set nofoldenable               " don't fold by default
 set scrolljump=5               " Lines to scroll when cursor leaves screen
 set scrolloff=3                " Minimum lines to keep above and below cursor
 set nowrap                     " do not wrap long lines
@@ -103,6 +101,8 @@ endif
 set backspace=indent,eol,start      " make backspace behave in a sane manner
 set termguicolors                   " true color, terminal using
 set hidden                          " Allow buffer switching without saving
+syntax on                           " syntax highlight
+filetype plugin indent on           " Indent and plugins by filetype
 let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1 " make cursor shape in insert mode
 let g:matchparen_insert_timeout=1   " fix lag
 " Highlight tab, problematic whitespace, eol:¬
@@ -119,8 +119,21 @@ if exists("*fugitive#statusline")
     set statusline+=%{fugitive#statusline()}
 endif
 
-" ui
-colorscheme dracula
+" set stab, spaces for programming languages
+autocmd FileType haskell,puppet,ruby,yml setlocal ts=2 sts=2 sw=2 expandtab
+autocmd FileType make setlocal ts=8 sts=8 sw=8 noexpandtab
+autocmd FileType html setlocal ts=4 sts=4 sw=4 noexpandtab indentkeys-=*<return>
+autocmd FileType python,javascripts setlocal ts=4 sts=4 sw=4 expandtab
+
+" set file type
+autocmd BufNewFile,BufRead *.coffee set filetype=coffee
+autocmd BufNewFile,BufRead *.ejs set filetype=html
+autocmd BufNewFile,BufRead *.ino set filetype=c
+autocmd BufNewFile,BufRead *.svg set filetype=xml
+autocmd BufNewFile,BufRead .babelrc set filetype=json
+autocmd BufNewFile,BufRead .jshintrc set filetype=json
+autocmd BufNewFile,BufRead .eslintrc set filetype=json
+autocmd BufNewFile,BufRead *.es6 set filetype=javascript
 
 
 """"""""""""""""""""""""""""""""""""""""
@@ -130,6 +143,8 @@ let mapleader = ','
 let g:mapleader = ','
 " yank [cursor -> end of line], to be consistent with C and D.
 nnoremap Y y$
+" paste without cutting
+vnoremap p "_dP
 " Visual shifting (does not exit Visual mode)
 vnoremap < <gv
 vnoremap > >gv
@@ -144,12 +159,16 @@ nnoremap <silent> $ g$
 vnoremap J :m '>+1<CR>gv=gv
 vnoremap K :m '<-2<CR>gv=gv
 nmap <silent> <leader>h :set invhlsearch<CR> " Toggle highlight search research
-nmap <leader><space> :%s/\s\+$<cr> " remove extra whitespace
 
 
 """"""""""""""""""""""""""""""""""""""""
 " plugins settings
 """"""""""""""""""""""""""""""""""""""""
+colorscheme dracula
+" python support
+let g:python_host_prog = '~/.pyenv/shims/python'
+let g:python3_host_prog = '~/.pyenv/shims/python3'
+
 " visual mode (e.g. vipga)
 xmap ga <Plug>(EasyAlign)
 " motion/text object (e.g. gaip)
@@ -206,7 +225,7 @@ elseif executable('ack-grep')
 endif
 
 " CtrlP
-let g:ctrlp_match_window      = 'bottom,order:ttb'
+let g:ctrlp_match_window      = 'bottom,order:btt,min:2,max:25'
 let g:ctrlp_switch_buffer     = 0
 let g:ctrlp_working_path_mode = 'ra'
 let g:ctrlp_user_command      = 'ag %s -l --nocolor --hidden -g ""'
@@ -239,5 +258,30 @@ let g:airline#extensions#whitespace#enabled  = 1
 let g:airline#extensions#hunks#non_zero_only = 1
 let g:airline#extensions#virtualenv#enabled  = 1
 
+" location popup
+nmap <Leader>lo :lopen<CR>
+nmap <Leader>lc :lclose<CR>
+nmap <Leader>ll :ll<CR>
+nmap <Leader>ln :lnext<CR>
+nmap <Leader>lp :lprev<CR>
+autocmd! BufReadPost,BufWritePost * Neomake " on read and write operations
+let g:neomake_serialize = 1
+let g:neomake_serialize_abort_on_error = 1
+" close help files on 'q'
+autocmd FileType help,location nnoremap q :bd<cr>
 
+function! StripTrailingWhitespace()
+    " Preparation: save last search, and cursor position.
+    let _s=@/
+    let l = line(".")
+    let c = col(".")
+    " do the business:
+    %s/\s\+$//e
+    " clean up: restore previous search history, and cursor position
+    let @/=_s
+    call cursor(l, c)
+endfunction
+" Remove trailing whitespaces and ^M chars
+" To disable let g:keep_trailing_whitespace=1
+autocmd FileType c,cpp,java,go,php,javascript,puppet,python,rust,twig,xml,yml,perl,sql autocmd BufWritePre <buffer> if !exists('g:keep_trailing_whitespace') | call StripTrailingWhitespace() | endif
 " vim: foldmethod=marker;foldlevel=0
