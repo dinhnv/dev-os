@@ -50,6 +50,10 @@ append_profile() {
 
 # install
 install_os_dependencies() {
+    log "add debian source list"
+    sudo sh -c 'echo "deb http://archive.getdeb.net/ubuntu xenial-getdeb apps" >> /etc/apt/sources.list.d/getdeb.list'
+    wget -q -O - http://archive.getdeb.net/getdeb-archive.key | sudo apt-key add -
+
     log "install os dependencies"
     # build
     su_apt build-essential make automake gcc python-dev python3-dev libssl-dev software-properties-common\
@@ -129,8 +133,10 @@ _spacemacs() {
     # TODO check pip
     # anaconda
     sudo pip install jedi json-rpc service_factory
+    sudo pip3 install jedi json-rpc service_factory
     # python remove unused imports
-    sudo pip install autoflake
+    sudo pip install autoflake flake8
+    sudo pip3 install autoflake flake8
 }
 
 install_term() {
@@ -146,7 +152,7 @@ install_term() {
 generate_sshkeys() {
     log "generate ssh key and add to ssh-agent"
     ssh keys & ssh-agent
-    ssh-keygen -t rsa -b 4096 -C $EMAIL -f $HOME/.ssh/id_rsa -N ""
+    ssh-keygen -t rsa -b 4096 -C "$EMAIL-$HOSTNAME" -f $HOME/.ssh/id_rsa -N ""
     eval "$(ssh-agent -s)"
     ssh-add $HOME/.ssh/id_rsa
 }
@@ -246,6 +252,9 @@ setup_fonts() {
     cd programming-fonts-collection
     find ./ -maxdepth 1 -type d ! -name '.*' -exec mv {} $FONT_DIR \;
 
+    cd $FONT_DIR
+    git clone https://github.com/Salauyou/Consolas-High-Line
+
     fc-cache -f $FONT_DIR
 }
 
@@ -265,7 +274,7 @@ _markdown() {
 }
 
 _google_chrome() {
-    wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add - 
+    wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
     sudo sh -c 'echo "deb https://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
     sudo apt-get update
     sudo apt-get install google-chrome-stable
