@@ -147,6 +147,7 @@ install_term() {
     _tmux
     _neovim
     _spacemacs
+    su_apt tree
 }
 
 generate_sshkeys() {
@@ -224,7 +225,8 @@ golang() {
     cd $TMP_DIR && wget https://storage.googleapis.com/golang/$GO_VERSION.tar.gz
     sudo tar -C /usr/local -xzf $GO_VERSION.tar.gz
     append_profile <<EOF
-export PATH=\$PATH:/usr/local/go/bin
+export GOPATH=/usr/local/go
+export PATH=\$GOPATH:\$GOPATH/bin:\$PATH
 EOF
 }
 
@@ -308,6 +310,7 @@ setup_tools() {
     # vietnamese
     su_apt ibus-unikey
     # su_apt skype
+    su_apt network-manager-gnome
 }
 
 
@@ -325,4 +328,5 @@ __main__() {
     rm -rf $TMP_DIR
 }
 
-__main__
+# __main__
+$@
