@@ -225,7 +225,7 @@ golang() {
     cd $TMP_DIR && wget https://storage.googleapis.com/golang/$GO_VERSION.tar.gz
     sudo tar -C /usr/local -xzf $GO_VERSION.tar.gz
     append_profile <<EOF
-export GOPATH=/usr/local/go
+export GOPATH=\$HOME/gocode
 export PATH=\$GOPATH:\$GOPATH/bin:\$PATH
 EOF
 }
