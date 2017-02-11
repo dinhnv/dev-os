@@ -2,6 +2,7 @@
 #
 # @author dinhnv
 
+# enable exit-on-error
 set -e
 # ask sudo password (timeout to cache 15minutes)
 sudo -v
@@ -13,27 +14,47 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 # constants
 EMAIL="dinhnv.mr@gmail.com"
 REPO_ROOT=$(pwd)
-# I don't want to get stuck in trouble of /opt permissions and .apps to be less conflictable
-APPS_DIR="$HOME/.apps"
+DOTFILES=$(pwd)/dotfiles
+# GROUP=$(id -g -n)
+
+APPS_DIR="$HOME/applications" # I don't want to get trouble of /opt permissions
 TMP_DIR="${HOME}/tmp"
-# instead of bashrc or .profile
-PROFILE="$HOME/.zshrc"
+PROFILE="$HOME/.zshrc" # .bashrc or .profile
 
 
-# mkdir
 mkdir -p $APPS_DIR
 mkdir -p $TMP_DIR
 
 
-# utils
 log() {
-    echo "----------------------------------------------------------------------"
+    echo "--------------------------------------------------------------------"
     echo $1
-    echo "----------------------------------------------------------------------"
+    echo "--------------------------------------------------------------------"
 }
 
-su_apt() {
+sysget() {
     sudo apt-get install -y $@
+}
+
+# color
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+is_installed() {
+    # set to 1 initially, yes
+    local rtn=0
+    # set to 1 if not found, default boolean behavior of shell
+    which $1 >/dev/null 2>&1 || { local rtn=1; }
+    local msg=""
+    if [ $rtn -eq 0 ]; then
+        msg="${GREEN}✔"
+    else
+        msg="${RED}✘"
+    fi
+    echo "[${1}] ${msg}"
+    echo "${NC}"
+    return $rtn
 }
 
 # backup if existed
@@ -43,28 +64,43 @@ backup() {
     fi
 }
 
+# http://stackoverflow.com/questions/226703/how-do-i-prompt-for-yes-no-cancel-input-in-a-linux-shell-script/27875395#27875395
+read_input() {
+    echo ""
+select result in Yes No Cancel
+do
+    echo $result
+    break
+done
+}
+
 append_profile() {
     cat >> $PROFILE $@
 }
 
+update_system() {
+    log "update & upgrade system"
+    sudo apt-get update
+    sudo apt-get upgrade
+}
 
 # install
-install_os_dependencies() {
+install_os_deps() {
     log "add debian source list"
     sudo sh -c 'echo "deb http://archive.getdeb.net/ubuntu xenial-getdeb apps" >> /etc/apt/sources.list.d/getdeb.list'
     wget -q -O - http://archive.getdeb.net/getdeb-archive.key | sudo apt-key add -
 
     log "install os dependencies"
     # build
-    su_apt build-essential make automake gcc python-dev python3-dev libssl-dev software-properties-common\
-    # dev
-    su_apt zlib1g-dev libpq-dev libtiff5-dev libjpeg8-dev libfreetype6-dev\
-    liblcms2-dev libwebp-dev graphviz-dev gettext libbz2-dev\
-    libreadline-dev libsqlite3-dev xclip
+    sysget build-essential make automake software-properties-common \
+        python-dev python3-dev gcc libssl-dev \
+        zlib1g-dev libpq-dev libtiff5-dev libjpeg8-dev libfreetype6-dev \
+        liblcms2-dev libwebp-dev graphviz-dev gettext libbz2-dev \
+        libreadline-dev libsqlite3-dev xclip
     # vim
-    su_apt ncurses-dev
+    sysget ncurses-dev
     # tmux
-    su_apt libevent-dev
+    sysget libevent-dev
 }
 
 
@@ -80,11 +116,11 @@ _tmux() {
     sudo make install
 
     # for pre layout
-    su_apt tmuxinator
+    sysget tmuxinator
     tmux_conf="$HOME/.tmux.conf"
-    backup $tmux_conf && ln -s "$REPO_ROOT/tmux/tmux.conf" $tmux_conf
+    backup $tmux_conf && ln -s "$DOTFILES/tmux/tmux.conf" $tmux_conf
     mkdir -p $HOME/.tmuxinator
-    ln -s $REPO_ROOT/tmux/tmuxinator/ $HOME/.tmuxinator/
+    ln -s $DOTFILES/tmux/tmuxinator/ $HOME/.tmuxinator/
 
     # plugin manager
     git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
@@ -94,15 +130,12 @@ _neovim() {
     log "neovim"
     sudo add-apt-repository ppa:neovim-ppa/unstable
     sudo apt-get update
-    su_apt neovim
+    sysget neovim
     # clipboard, search, ctags for plugin requirements
-    su_apt silversearcher-ag ctags
+    sysget ctags
     NVDIR="$HOME/.config/nvim/"
     mkdir -p $NVDIR && backup "$NVDIR/init.vim"\
         && ln -s $REPO_ROOT/vim/init.vim "${NVDIR}/init.vim"
-    # vim plug
-    curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
-        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
     # support python
     sudo pip2 install neovim
@@ -111,27 +144,20 @@ _neovim() {
 
 _zsh() {
     log "zsh & oh-my-zsh"
-    su_apt zsh
+    sysget zsh
     chsh -s $(which zsh)
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-    ln -s $REPO_ROOT/zsh/zshrc.local $HOME/.zshrc.local
-    append_profile <<EOF
-if [ -f \$HOME/.zshrc.local ]; then
-    source \$HOME/.zshrc.local
-fi
-EOF
+    # sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+    git clone git://github.com/robbyrussell/oh-my-zsh.git $HOME/.oh-my-zsh
     wget -P $HOME/.oh-my-zsh/themes/ https://raw.githubusercontent.com/dracula/zsh/master/dracula.zsh-theme
+    ln -s $DOTFILES/zsh/zshrc $HOME/.zshrc
 }
 
 _spacemacs() {
     sudo apt-add-repository -y ppa:adrozdoff/emacs
     sudo apt update
-    su_apt emacs25
+    sysget emacs25
     git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
 
-    # dependencies
-    # TODO check pip
-    # anaconda
     sudo pip install jedi json-rpc service_factory
     sudo pip3 install jedi json-rpc service_factory
     # python remove unused imports
@@ -147,7 +173,7 @@ install_term() {
     _tmux
     _neovim
     _spacemacs
-    su_apt tree
+    sysget tree
 }
 
 generate_sshkeys() {
@@ -164,7 +190,7 @@ generate_sshkeys() {
 # ----------------------------------------------------------------------
 python_env() {
     log "python environment"
-    su_apt libmysqlclient-dev
+    sysget libmysqlclient-dev
 
     # python environment
     cd $APP_DIR && wget https://bootstrap.pypa.io/get-pip.py
@@ -195,7 +221,7 @@ oracle_jdk() {
     sudo add-apt-repository ppa:webupd8team/java
     sudo apt-get update
     sudo apt-get install oracle-java8-installer
-    su_apt oracle-java8-set-default
+    sysget oracle-java8-set-default
     append_profile <<EOF
 export JAVA_HOME=/usr/lib/jvm/java-8-oracle/
 EOF
@@ -208,8 +234,8 @@ docker() {
 
 nodejs() {
     log "nodejs"
-    curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
-    su_apt nodejs
+    curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+    sysget nodejs
     # TODO
     # sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
     sudo npm install -g coffee-script
@@ -283,7 +309,7 @@ _google_chrome() {
 }
 
 _gradle() {
-    GRADLE_VERSION=gradle-3.1
+    GRADLE_VERSION=gradle-3.3
     cd $APPS_DIR && wget https://services.gradle.org/distributions/$GRADLE_VERSION-bin.zip
     unzip $GRADLE_VERSION-bin.zip
     # to easy upgrade
@@ -295,37 +321,50 @@ EOF
 }
 
 _vagrant() {
-    su_apt virtualbox virtualbox-dkms vagrant
+    sysget virtualbox virtualbox-dkms vagrant
     # vagrant box add precise32 http://files.vagrantup.com/precise32.box
+    # if guest machine is ubuntu, add permission
+    # sudo usermod -a -G vboxsf $USER
 }
 
 
 setup_tools() {
     # _markdown
-    su_apt mysql-workbench
+    sysget mysql-workbench
     _google_chrome
     _gradle
     _vagrant
 
-    # vietnamese
-    su_apt ibus-unikey
-    # su_apt skype
-    su_apt network-manager-gnome
+    # Vietnamese
+    sysget ibus-unikey
+    # sysget skype
+    # for vpn setup
+    sysget network-manager-gnome
 }
 
+clean() {
+    sudo apt-get -y autoclean
+    sudo apt-get -y clean
+    sudo apt-get -y autoremove
+
+    rm -rf $TMP_DIR
+
+    unset EMAIL REPO_ROOT APPS_DIR TMP_DIR PROFILE
+}
 
 __main__() {
     log "start installing!"
-    sudo apt-get update
-    install_os_dependencies
+
+    update_system
+    install_os_deps
+
     install_term
     generate_sshkeys
     dev_env
     setup_fonts
     setup_tools
 
-    # clean up
-    rm -rf $TMP_DIR
+    clean
 }
 
 # __main__
